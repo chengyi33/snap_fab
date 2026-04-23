@@ -1,0 +1,39 @@
+[
+  {
+    "id": 1,
+    "name": "John",
+    "role": "Process Engineer",
+    "trained_tools": [
+      "PECVD",
+      "Sputter",
+      "Furnace"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Sarah",
+    "role": "Etch Engineer",
+    "trained_tools": [
+      "RIE Etch",
+      "PECVD"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Mike",
+    "role": "Litho Engineer",
+    "trained_tools": [
+      "Litho Stepper",
+      "Spin Coater"
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Carol",
+    "role": "Bonding Specialist",
+    "trained_tools": [
+      "Fusion Bonder",
+      "Plasma Cleaner"
+    ]
+  }
+]

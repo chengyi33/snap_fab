@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "PECVD",
+    "ucsb_id": "pecvd-01"
+  },
+  {
+    "id": 2,
+    "name": "Litho Stepper",
+    "ucsb_id": "litho-01"
+  },
+  {
+    "id": 3,
+    "name": "RIE Etch",
+    "ucsb_id": "rie-01"
+  },
+  {
+    "id": 4,
+    "name": "Sputter",
+    "ucsb_id": "sputter-01"
+  },
+  {
+    "id": 5,
+    "name": "Furnace",
+    "ucsb_id": "furnace-01"
+  },
+  {
+    "id": 6,
+    "name": "Spin Coater",
+    "ucsb_id": "spin-01"
+  },
+  {
+    "id": 7,
+    "name": "Fusion Bonder",
+    "ucsb_id": "bonder-01"
+  },
+  {
+    "id": 8,
+    "name": "SRD",
+    "ucsb_id": "srd-01"
+  }
+]

@@ -1,0 +1,109 @@
+[
+  {
+    "id": 1,
+    "name": "Substrate Prep",
+    "layer_num": 1,
+    "target_week": "2025-02-10",
+    "status": "done",
+    "assigned_to": [
+      1
+    ],
+    "notes": ""
+  },
+  {
+    "id": 2,
+    "name": "Oxide Growth",
+    "layer_num": 2,
+    "target_week": "2025-02-17",
+    "status": "done",
+    "assigned_to": [
+      2
+    ],
+    "notes": ""
+  },
+  {
+    "id": 3,
+    "name": "Nitride Dep.",
+    "layer_num": 3,
+    "target_week": "2025-02-24",
+    "status": "done",
+    "assigned_to": [
+      1,
+      2
+    ],
+    "notes": ""
+  },
+  {
+    "id": 4,
+    "name": "Metal Deposition",
+    "layer_num": 4,
+    "target_week": "2025-03-03",
+    "status": "done",
+    "assigned_to": [
+      1
+    ],
+    "notes": ""
+  },
+  {
+    "id": 5,
+    "name": "Litho Patterning",
+    "layer_num": 5,
+    "target_week": "2025-03-10",
+    "status": "done",
+    "assigned_to": [
+      3
+    ],
+    "notes": ""
+  },
+  {
+    "id": 6,
+    "name": "Via Etch",
+    "layer_num": 6,
+    "target_week": "2025-03-17",
+    "status": "done",
+    "assigned_to": [
+      2
+    ],
+    "notes": ""
+  },
+  {
+    "id": 7,
+    "name": "MW Pillar",
+    "layer_num": 7,
+    "target_week": "2025-04-21",
+    "status": "active",
+    "assigned_to": [
+      1,
+      2,
+      3
+    ],
+    "notes": "2 tools unbooked"
+  },
+  {
+    "id": 8,
+    "name": "MWR Bond",
+    "layer_num": 8,
+    "target_week": "2025-04-28",
+    "status": "upcoming",
+    "assigned_to": [],
+    "notes": ""
+  },
+  {
+    "id": 9,
+    "name": "SOI Release",
+    "layer_num": 9,
+    "target_week": "2025-05-05",
+    "status": "upcoming",
+    "assigned_to": [],
+    "notes": ""
+  },
+  {
+    "id": 10,
+    "name": "Target Transfer",
+    "layer_num": 10,
+    "target_week": "2025-05-12",
+    "status": "upcoming",
+    "assigned_to": [],
+    "notes": ""
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "layer_id": 7,
+    "step_num": "7.1",
+    "process": "Oxide deposition",
+    "tool": "PECVD",
+    "process_time_hr": 4,
+    "slot_time_hr": 4,
+    "operator_id": 1,
+    "status": "done"
+  },
+  {
+    "id": 2,
+    "layer_id": 7,
+    "step_num": "7.2",
+    "process": "Photoresist expose",
+    "tool": "Litho Stepper",
+    "process_time_hr": 3,
+    "slot_time_hr": 3,
+    "operator_id": 3,
+    "status": "in_progress"
+  },
+  {
+    "id": 3,
+    "layer_id": 7,
+    "step_num": "7.3",
+    "process": "Pattern etch",
+    "tool": "RIE Etch",
+    "process_time_hr": 3,
+    "slot_time_hr": 2,
+    "operator_id": 2,
+    "status": "needs_booking"
+  },
+  {
+    "id": 4,
+    "layer_id": 7,
+    "step_num": "7.4",
+    "process": "Nitride deposition",
+    "tool": "PECVD",
+    "process_time_hr": 3,
+    "slot_time_hr": 3,
+    "operator_id": 2,
+    "status": "needs_booking"
+  },
+  {
+    "id": 5,
+    "layer_id": 7,
+    "step_num": "7.5",
+    "process": "Metal sputter",
+    "tool": "Sputter",
+    "process_time_hr": 4,
+    "slot_time_hr": 4,
+    "operator_id": 1,
+    "status": "not_started"
+  },
+  {
+    "id": 6,
+    "layer_id": 7,
+    "step_num": "7.6",
+    "process": "Anneal",
+    "tool": "Furnace",
+    "process_time_hr": 4,
+    "slot_time_hr": 4,
+    "operator_id": 1,
+    "status": "not_started"
+  }
+]

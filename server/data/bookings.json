@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "tool": "PECVD",
+    "date": "2025-04-21",
+    "start_time": "09:00",
+    "duration_hr": 4,
+    "booked_by": 1,
+    "layer_step": "L7.1 Oxide dep.",
+    "ucsb_confirmed": true,
+    "notes": ""
+  },
+  {
+    "id": 2,
+    "tool": "Litho Stepper",
+    "date": "2025-04-22",
+    "start_time": "09:00",
+    "duration_hr": 3,
+    "booked_by": 3,
+    "layer_step": "L7.2 PR expose",
+    "ucsb_confirmed": true,
+    "notes": ""
+  },
+  {
+    "id": 3,
+    "tool": "Sputter",
+    "date": "2025-04-24",
+    "start_time": "10:00",
+    "duration_hr": 4,
+    "booked_by": 1,
+    "layer_step": "L7.5 Metal sput.",
+    "ucsb_confirmed": true,
+    "notes": ""
+  },
+  {
+    "id": 4,
+    "tool": "Furnace",
+    "date": "2025-04-25",
+    "start_time": "13:00",
+    "duration_hr": 4,
+    "booked_by": 1,
+    "layer_step": "L7.6 Anneal",
+    "ucsb_confirmed": true,
+    "notes": ""
+  }
+]
