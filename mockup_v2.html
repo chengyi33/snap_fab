@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fab Scheduler Prototype</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; padding: 0;
+    background: #f6f6f3;
+    color: #1a1a1a;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .app { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  .header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 20px;
+  }
+  .header h1 { margin: 0 0 4px; font-size: 22px; font-weight: 500; }
+  .header .sub { font-size: 13px; color: #666; }
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 24px;
+  }
+  .stat {
+    background: #fff; border-radius: 8px; padding: 14px 16px;
+    border: 0.5px solid rgba(0,0,0,0.1);
+  }
+  .stat .label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .stat .value { font-size: 22px; font-weight: 500; }
+  .stat .value.green { color: #2a7a3e; }
+  .stat .value.orange { color: #b86b11; }
+  .tabs {
+    display: flex; gap: 4px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+  }
+  .tab {
+    background: transparent; border: none;
+    border-bottom: 2px solid transparent;
+    padding: 10px 14px; font-size: 13px; color: #666;
+    cursor: pointer; font-weight: 400;
+  }
+  .tab.active { border-bottom-color: #1a1a1a; color: #1a1a1a; font-weight: 500; }
+  .tab:hover { color: #1a1a1a; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .card {
+    background: #fff; border: 0.5px solid rgba(0,0,0,0.1);
+    border-radius: 12px; overflow: hidden; margin-bottom: 16px;
+  }
+  .card-head {
+    background: #f6f6f3; padding: 10px 14px;
+    font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.03em;
+    border-bottom: 0.5px solid rgba(0,0,0,0.1);
+  }
+  h3 { margin: 0 0 4px; font-size: 16px; font-weight: 500; }
+  h3 + p.sub { margin: 0 0 14px; font-size: 13px; color: #666; }
+  button {
+    background: #fff; border: 0.5px solid rgba(0,0,0,0.2);
+    border-radius: 8px; padding: 8px 14px;
+    font-size: 13px; cursor: pointer; color: #1a1a1a;
+  }
+  button:hover { background: #f0f0eb; }
+  button.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  button.primary:hover { background: #333; }
+  select {
+    border: 0.5px solid rgba(0,0,0,0.2); border-radius: 6px;
+    padding: 6px 8px; font-size: 13px; background: #fff; width: 100%;
+  }
+
+  /* Week view table */
+  .week-table { width: 100%; border-collapse: collapse; }
+  .week-table th {
+    text-align: left; padding: 10px 14px; font-size: 11px; color: #666;
+    text-transform: uppercase; letter-spacing: 0.03em; font-weight: 500;
+    background: #f6f6f3; border-bottom: 0.5px solid rgba(0,0,0,0.1);
+  }
+  .week-table td {
+    padding: 12px 14px; font-size: 13px;
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .week-table tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px;
+  }
+  .badge.booked { background: #e8f3d8; color: #2a5a17; }
+  .badge.suggested { background: #faecd4; color: #7a4a10; }
+  .badge.open { background: #eee; color: #555; }
+
+  /* Tool grid */
+  .tool-grid { display: grid; grid-template-columns: 90px repeat(5, 1fr); }
+  .tool-grid .cell {
+    padding: 8px 10px; border-bottom: 0.5px solid rgba(0,0,0,0.08);
+    border-right: 0.5px solid rgba(0,0,0,0.08);
+    min-height: 56px; display: flex; align-items: center;
+  }
+  .tool-grid .cell.head {
+    background: #f6f6f3; font-size: 11px; color: #666;
+    text-transform: uppercase; letter-spacing: 0.03em; min-height: auto;
+    padding: 10px; font-weight: 500;
+  }
+  .tool-grid .cell.tool-name { font-weight: 500; font-size: 13px; }
+  .slot {
+    padding: 6px 8px; border-radius: 6px; font-size: 11px; line-height: 1.3; width: 100%;
+  }
+  .slot .op { font-weight: 500; }
+  .slot.john { background: #d4c9ed; color: #2b1e52; }
+  .slot.sarah { background: #e7dff5; color: #2b1e52; }
+  .slot.mike { background: #c4ebdb; color: #0a3a28; }
+  .slot.shared { background: #d8d6cc; color: #2a2a28; }
+  .slot.pm { background: #f0cddb; color: #521a32; }
+
+  /* POR editor */
+  .por-table { width: 100%; border-collapse: collapse; }
+  .por-table th {
+    text-align: left; padding: 10px 14px; font-size: 11px; color: #666;
+    text-transform: uppercase; letter-spacing: 0.03em; font-weight: 500;
+    background: #f6f6f3; border-bottom: 0.5px solid rgba(0,0,0,0.1);
+  }
+  .por-table td {
+    padding: 10px 14px; font-size: 13px;
+    border-bottom: 0.5px solid rgba(0,0,0,0.08); vertical-align: middle;
+  }
+  .por-table tr:last-child td { border-bottom: none; }
+  .info {
+    background: #e6f0fa; border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; color: #0c4275; margin-bottom: 16px;
+  }
+
+  /* Master schedule */
+  .timeline {
+    display: flex; gap: 2px; height: 36px; margin-bottom: 10px;
+  }
+  .timeline .bar {
+    flex: 1; border-radius: 3px;
+  }
+  .bar.done { background: #1d9e75; }
+  .bar.now { background: #7f77dd; }
+  .bar.plan { background: #d3d1c7; }
+  .timeline-labels {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: #666;
+  }
+  .slider-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+  }
+  .slider-row span { font-size: 12px; }
+  .slider-row .name { width: 40px; color: #666; }
+  .slider-row .val { min-width: 48px; font-weight: 500; }
+  .slider-row input[type=range] { flex: 1; }
+
+  .legend { display: flex; gap: 16px; font-size: 12px; color: #666; margin-top: 8px; flex-wrap: wrap; }
+  .legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
+
+  .actions { display: flex; gap: 8px; margin-top: 12px; }
+
+  .risk-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px; font-size: 13px;
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .risk-item:last-child { border-bottom: none; }
+  .risk-item .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .risk-item .dot.red { background: #c93b3b; }
+  .risk-item .dot.amber { background: #d68c1a; }
+  .risk-item .dot.blue { background: #2d7cc7; }
+  .risk-item .title { font-weight: 500; margin-bottom: 2px; }
+  .risk-item .desc { color: #666; font-size: 12px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+  .operator-bar {
+    margin-bottom: 12px;
+  }
+  .operator-bar .head {
+    display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;
+  }
+  .operator-bar .track {
+    height: 6px; background: #eee; border-radius: 3px; overflow: hidden;
+  }
+  .operator-bar .fill { height: 100%; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div>
+      <h1>Fab scheduler</h1>
+      <div class="sub">Week of Apr 20, 2026 · Layer 7 of 20</div>
+    </div>
+    <div>
+      <button onclick="alert('In the real app: pull latest from SignUp Genius / iCal feeds')">Refresh bookings</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="label">Current layer</div>
+      <div class="value">7 / 20</div>
+    </div>
+    <div class="stat">
+      <div class="label">On schedule</div>
+      <div class="value green">Yes</div>
+    </div>
+    <div class="stat">
+      <div class="label">Tool conflicts</div>
+      <div class="value orange">1</div>
+    </div>
+    <div class="stat">
+      <div class="label">Est. completion</div>
+      <div class="value">Jul 14</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-view="week">This week</button>
+    <button class="tab" data-view="tools">Tool availability</button>
+    <button class="tab" data-view="por">POR & slots</button>
+    <button class="tab" data-view="master">Master schedule</button>
+  </div>
+
+  <!-- THIS WEEK VIEW -->
+  <div class="view active" id="view-week">
+    <h3>What needs to be done this week</h3>
+    <p class="sub">Derived from master schedule — layer 7 targeted by Apr 25.</p>
+
+    <div class="card">
+      <table class="week-table">
+        <thead>
+          <tr>
+            <th style="width:50px">Step</th>
+            <th>Process</th>
+            <th>Tool</th>
+            <th style="width:70px">Time</th>
+            <th style="width:80px">Operator</th>
+            <th style="width:100px">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>7.1</td><td>Oxide deposition</td><td>PECVD</td><td>4 hr</td><td>John</td><td><span class="badge booked">Booked</span></td></tr>
+          <tr><td>7.2</td><td>Photoresist expose</td><td>Litho stepper</td><td>3 hr</td><td>Mike</td><td><span class="badge booked">Booked</span></td></tr>
+          <tr><td>7.3</td><td>Pattern etch</td><td>RIE etch</td><td>3 hr</td><td>Sarah</td><td><span class="badge booked">Booked</span></td></tr>
+          <tr><td>7.4</td><td>Nitride deposition</td><td>PECVD</td><td>3 hr</td><td>Sarah</td><td><span class="badge booked">Booked</span></td></tr>
+          <tr><td>7.5</td><td>Metal sputter</td><td>Sputter</td><td>4 hr</td><td>John</td><td><span class="badge suggested">Suggested</span></td></tr>
+          <tr><td>7.6</td><td>Anneal</td><td>Furnace</td><td>4 hr</td><td>John</td><td><span class="badge suggested">Suggested</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head">Operator load this week</div>
+        <div style="padding: 14px;">
+          <div class="operator-bar">
+            <div class="head"><span>John</span><span style="color:#666">14 hrs</span></div>
+            <div class="track"><div class="fill" style="width:70%; background:#7f77dd;"></div></div>
+          </div>
+          <div class="operator-bar">
+            <div class="head"><span>Sarah</span><span style="color:#666">9 hrs</span></div>
+            <div class="track"><div class="fill" style="width:45%; background:#afa9ec;"></div></div>
+          </div>
+          <div class="operator-bar" style="margin-bottom:0">
+            <div class="head"><span>Mike</span><span style="color:#666">6 hrs</span></div>
+            <div class="track"><div class="fill" style="width:30%; background:#1d9e75;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">At-risk items</div>
+        <div class="risk-item">
+          <div class="dot red"></div>
+          <div>
+            <div class="title">Litho Thu 4/23 double-booked</div>
+            <div class="desc">L7 step conflicts with L8 kickoff</div>
+          </div>
+        </div>
+        <div class="risk-item">
+          <div class="dot amber"></div>
+          <div>
+            <div class="title">PECVD PM scheduled Fri</div>
+            <div class="desc">Blocks L8 oxide step</div>
+          </div>
+        </div>
+        <div class="risk-item">
+          <div class="dot blue"></div>
+          <div>
+            <div class="title">John at 70% load</div>
+            <div class="desc">Consider rebalancing to Sarah</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="alert('In the real app: auto-book suggested slots in SignUp Genius')">Confirm suggested bookings</button>
+      <button>Day-by-day view</button>
+    </div>
+  </div>
+
+  <!-- TOOL AVAILABILITY VIEW -->
+  <div class="view" id="view-tools">
+    <h3>Tool availability · week of Apr 20</h3>
+    <p class="sub">Colored = booked. Empty = available.</p>
+
+    <div class="card">
+      <div class="tool-grid">
+        <div class="cell head">Tool</div>
+        <div class="cell head">Mon 4/20</div>
+        <div class="cell head">Tue 4/21</div>
+        <div class="cell head">Wed 4/22</div>
+        <div class="cell head">Thu 4/23</div>
+        <div class="cell head">Fri 4/24</div>
+
+        <div class="cell tool-name">PECVD</div>
+        <div class="cell"><div class="slot john"><div class="op">John 9–1</div>L7 oxide</div></div>
+        <div class="cell"></div>
+        <div class="cell"><div class="slot sarah"><div class="op">Sarah 2–5</div>L7 nitride</div></div>
+        <div class="cell"></div>
+        <div class="cell"><div class="slot pm"><div class="op">PM 9–12</div>Maintenance</div></div>
+
+        <div class="cell tool-name">Litho stepper</div>
+        <div class="cell"></div>
+        <div class="cell"><div class="slot mike"><div class="op">Mike 9–12</div>L7 expose</div></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+
+        <div class="cell tool-name">Sputter</div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"><div class="slot john"><div class="op">John 10–2</div>L7 metal</div></div>
+        <div class="cell"></div>
+
+        <div class="cell tool-name">RIE etch</div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"><div class="slot sarah"><div class="op">Sarah 1–4</div>L7 pattern</div></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+
+        <div class="cell tool-name">Furnace</div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"><div class="slot john"><div class="op">John 1–5</div>L7 anneal</div></div>
+
+        <div class="cell tool-name">Metrology</div>
+        <div class="cell"></div>
+        <div class="cell"><div class="slot shared"><div class="op">Any 3–4</div>L7 check</div></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"><div class="slot shared"><div class="op">Any 3–4</div>L7 check</div></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><span class="sw" style="background:#d4c9ed"></span>John</span>
+      <span><span class="sw" style="background:#e7dff5"></span>Sarah</span>
+      <span><span class="sw" style="background:#c4ebdb"></span>Mike</span>
+      <span><span class="sw" style="background:#d8d6cc"></span>Shared / any</span>
+      <span><span class="sw" style="background:#f0cddb"></span>Maintenance</span>
+    </div>
+  </div>
+
+  <!-- POR EDITOR VIEW -->
+  <div class="view" id="view-por">
+    <h3>POR editor — layer 7</h3>
+    <p class="sub">Edit step durations and tool slot lengths. Changes flow into the master schedule and bookings.</p>
+
+    <div class="info">
+      <strong>Slot length vs process time:</strong> process time is how long the chemistry runs. Slot length is how long the tool is reserved — includes setup, teardown, and buffer. A 4 hr slot for a 3 hr process reserves 1 hr of buffer.
+    </div>
+
+    <div class="card">
+      <table class="por-table">
+        <thead>
+          <tr>
+            <th style="width:50px">Step</th>
+            <th>Process</th>
+            <th>Tool</th>
+            <th style="width:120px">Process time</th>
+            <th style="width:120px">Slot length</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>7.1</td><td>Oxide deposition</td><td>PECVD</td>
+            <td><select><option>3 hr</option><option selected>4 hr</option><option>5 hr</option></select></td>
+            <td><select><option>2 hr</option><option selected>4 hr</option><option>6 hr</option></select></td>
+          </tr>
+          <tr>
+            <td>7.2</td><td>Photoresist expose</td><td>Litho stepper</td>
+            <td><select><option>2 hr</option><option selected>3 hr</option><option>4 hr</option></select></td>
+            <td><select><option>2 hr</option><option selected>4 hr</option><option>6 hr</option></select></td>
+          </tr>
+          <tr>
+            <td>7.3</td><td>Pattern etch</td><td>RIE etch</td>
+            <td><select><option>2 hr</option><option selected>3 hr</option><option>4 hr</option></select></td>
+            <td><select><option selected>2 hr</option><option>4 hr</option><option>6 hr</option></select></td>
+          </tr>
+          <tr>
+            <td>7.4</td><td>Nitride deposition</td><td>PECVD</td>
+            <td><select><option>2 hr</option><option selected>3 hr</option><option>4 hr</option></select></td>
+            <td><select><option>2 hr</option><option selected>4 hr</option><option>6 hr</option></select></td>
+          </tr>
+          <tr>
+            <td>7.5</td><td>Metal sputter</td><td>Sputter</td>
+            <td><select><option>3 hr</option><option selected>4 hr</option><option>5 hr</option></select></td>
+            <td><select><option>2 hr</option><option selected>4 hr</option><option>6 hr</option></select></td>
+          </tr>
+          <tr>
+            <td>7.6</td><td>Anneal</td><td>Furnace</td>
+            <td><select><option>3 hr</option><option selected>4 hr</option><option>6 hr</option></select></td>
+            <td><select><option>2 hr</option><option selected>4 hr</option><option>6 hr</option></select></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="alert('In the real app: save POR + trigger solver to re-optimize schedule')">Save & reschedule</button>
+      <button>Export POR as Excel</button>
+      <button>Import from Excel</button>
+    </div>
+  </div>
+
+  <!-- MASTER SCHEDULE VIEW -->
+  <div class="view" id="view-master">
+    <h3>Master schedule — 20 layers</h3>
+    <p class="sub">Baseline: 1 week per layer. Adjust per-layer allocation below — weekly plan & tool bookings re-derive.</p>
+
+    <div class="card" style="padding: 16px 20px;">
+      <div class="timeline">
+        <div class="bar done" title="L1"></div><div class="bar done" title="L2"></div>
+        <div class="bar done" title="L3"></div><div class="bar done" title="L4"></div>
+        <div class="bar done" title="L5"></div><div class="bar done" title="L6"></div>
+        <div class="bar now" title="L7 in progress"></div>
+        <div class="bar plan" title="L8"></div><div class="bar plan" title="L9"></div>
+        <div class="bar plan" title="L10"></div><div class="bar plan" title="L11"></div>
+        <div class="bar plan" title="L12"></div><div class="bar plan" title="L13"></div>
+        <div class="bar plan" title="L14"></div><div class="bar plan" title="L15"></div>
+        <div class="bar plan" title="L16"></div><div class="bar plan" title="L17"></div>
+        <div class="bar plan" title="L18"></div><div class="bar plan" title="L19"></div>
+        <div class="bar plan" title="L20"></div>
+      </div>
+      <div class="timeline-labels">
+        <span>L1 · Feb 10</span>
+        <span>Now · L7</span>
+        <span>L20 · Jul 14</span>
+      </div>
+      <div class="legend">
+        <span><span class="sw" style="background:#1d9e75"></span>Complete</span>
+        <span><span class="sw" style="background:#7f77dd"></span>In progress</span>
+        <span><span class="sw" style="background:#d3d1c7"></span>Planned</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">Per-layer allocation (days)</div>
+      <div style="padding: 16px;">
+        <div class="slider-row">
+          <span class="name">L7</span>
+          <input type="range" min="3" max="10" value="5" step="1" oninput="this.nextElementSibling.textContent = this.value + ' days'">
+          <span class="val">5 days</span>
+        </div>
+        <div class="slider-row">
+          <span class="name">L8</span>
+          <input type="range" min="3" max="10" value="5" step="1" oninput="this.nextElementSibling.textContent = this.value + ' days'">
+          <span class="val">5 days</span>
+        </div>
+        <div class="slider-row">
+          <span class="name">L9</span>
+          <input type="range" min="3" max="10" value="7" step="1" oninput="this.nextElementSibling.textContent = this.value + ' days'">
+          <span class="val">7 days</span>
+        </div>
+        <div class="slider-row">
+          <span class="name">L10</span>
+          <input type="range" min="3" max="10" value="5" step="1" oninput="this.nextElementSibling.textContent = this.value + ' days'">
+          <span class="val">5 days</span>
+        </div>
+        <div class="slider-row" style="margin-bottom:0">
+          <span class="name">L11</span>
+          <input type="range" min="3" max="10" value="5" step="1" oninput="this.nextElementSibling.textContent = this.value + ' days'">
+          <span class="val">5 days</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('view-' + t.dataset.view).classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
