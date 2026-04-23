@@ -6,6 +6,7 @@ export default function POREditor() {
   const [layers, setLayers] = useState([]);
   const [activeLayerId, setActiveLayerId] = useState(null);
   const [steps, setSteps] = useState([]);
+  const [team, setTeam] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [uploadMsg, setUploadMsg] = useState('');
 
@@ -20,7 +21,10 @@ export default function POREditor() {
 
   const loadSteps = (lid) => lid && api.steps.list(lid).then(s => setSteps([...s].sort((a, b) => String(a.step_num).localeCompare(String(b.step_num)))));
 
-  useEffect(() => { loadLayers(); }, []);
+  useEffect(() => {
+    loadLayers();
+    api.team.list().then(t => setTeam(t));
+  }, []);
   useEffect(() => { loadSteps(activeLayerId); }, [activeLayerId]);
 
   const updateStep = async (id, patch) => {
@@ -104,6 +108,7 @@ export default function POREditor() {
                   <th className="px-4 py-2 text-left">Tool</th>
                   <th className="px-4 py-2 text-left w-36">Process Time (hr)</th>
                   <th className="px-4 py-2 text-left w-36">Slot Length (hr)</th>
+                  <th className="px-4 py-2 text-left w-36">Operator</th>
                   <th className="px-4 py-2 text-left w-28">Status</th>
                 </tr>
               </thead>
@@ -129,6 +134,18 @@ export default function POREditor() {
                         onChange={e => updateStep(step.id, { slot_time_hr: Number(e.target.value) })}
                       >
                         {[0.5,1,1.5,2,3,4,5,6,8,10,12].map(h => <option key={h} value={h}>{h}h</option>)}
+                      </select>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <select
+                        className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs w-full"
+                        value={step.operator_id || ''}
+                        onChange={e => updateStep(step.id, { operator_id: e.target.value ? Number(e.target.value) : null })}
+                      >
+                        <option value="">— Unassigned —</option>
+                        {team.map(m => (
+                          <option key={m.id} value={m.id}>{m.name}</option>
+                        ))}
                       </select>
                     </td>
                     <td className="px-4 py-2.5"><Badge status={step.status} /></td>

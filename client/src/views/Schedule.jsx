@@ -5,6 +5,7 @@ import Badge from '../components/Badge';
 export default function Schedule() {
   const [layers, setLayers] = useState([]);
   const [durations, setDurations] = useState({});
+  const [editingNotes, setEditingNotes] = useState({}); // { [layerId]: string }
   const [uploading, setUploading] = useState(false);
 
   const load = () => api.layers.list().then(l => {
@@ -19,6 +20,26 @@ export default function Schedule() {
 
   const updateStatus = async (id, status) => {
     await api.layers.update(id, { status });
+    load();
+  };
+
+  const updateTargetWeek = async (id, target_week) => {
+    await api.layers.update(id, { target_week });
+    load();
+  };
+
+  const startEditNotes = (id, currentNotes) => {
+    setEditingNotes(prev => ({ ...prev, [id]: currentNotes || '' }));
+  };
+
+  const saveNotes = async (id) => {
+    const notes = editingNotes[id];
+    await api.layers.update(id, { notes });
+    setEditingNotes(prev => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
     load();
   };
 
@@ -105,7 +126,14 @@ export default function Schedule() {
                 <tr key={l.id} className={`border-b border-gray-800/50 hover:bg-gray-800/20 ${l.status === 'active' ? 'bg-indigo-950/30' : ''}`}>
                   <td className="px-4 py-2.5 text-gray-500">L{l.layer_num}</td>
                   <td className="px-4 py-2.5 font-medium">{l.name}</td>
-                  <td className="px-4 py-2.5 text-gray-400">{l.target_week || '—'}</td>
+                  <td className="px-4 py-2.5">
+                    <input
+                      type="date"
+                      className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-indigo-500"
+                      value={l.target_week || ''}
+                      onChange={e => updateTargetWeek(l.id, e.target.value)}
+                    />
+                  </td>
                   <td className="px-4 py-2.5">
                     <select
                       className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs"
@@ -118,7 +146,27 @@ export default function Schedule() {
                       <option value="future">Future</option>
                     </select>
                   </td>
-                  <td className="px-4 py-2.5 text-gray-500 text-xs">{l.notes || '—'}</td>
+                  <td className="px-4 py-2.5 text-gray-500 text-xs min-w-[160px]">
+                    {editingNotes.hasOwnProperty(l.id) ? (
+                      <input
+                        autoFocus
+                        type="text"
+                        className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs text-gray-300 w-full focus:outline-none focus:border-indigo-500"
+                        value={editingNotes[l.id]}
+                        onChange={e => setEditingNotes(prev => ({ ...prev, [l.id]: e.target.value }))}
+                        onBlur={() => saveNotes(l.id)}
+                        onKeyDown={e => { if (e.key === 'Enter') saveNotes(l.id); if (e.key === 'Escape') setEditingNotes(prev => { const n = {...prev}; delete n[l.id]; return n; }); }}
+                      />
+                    ) : (
+                      <span
+                        className="cursor-pointer hover:text-gray-300 transition-colors"
+                        title="Click to edit"
+                        onClick={() => startEditNotes(l.id, l.notes)}
+                      >
+                        {l.notes || <span className="text-gray-700 italic">click to add notes</span>}
+                      </span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
